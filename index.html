@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAF LINK - Data Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{background:#000;color:#fff;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #222;position:sticky;top:0;background:#000;z-index:10}
+.logo{font-weight:900;font-size:22px;letter-spacing:1px}
+.logo span{color:#00e5ff}
+.badge{background:#00e5ff;color:#000;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:800}
+.admin-btn{background:#222;color:#fff;border:1px solid #333;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.hero{padding:28px 20px 10px;text-align:center}
+.hero h1{font-size:32px;line-height:1.1}
+.hero h1 span{color:#00e5ff}
+.hero p{color:#aaa;margin-top:10px;font-size:14px}
+.search{margin:18px 20px 0;background:#111;border:1px solid #222;border-radius:12px;display:flex;align-items:center;padding:12px}
+.search input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:15px}
+.tabs{display:flex;gap:8px;padding:16px 20px;overflow-x:auto}
+.tabs button{white-space:nowrap;background:#111;border:1px solid #222;color:#ccc;padding:8px 16px;border-radius:20px;cursor:pointer}
+.tabs button.active{background:#fff;color:#000;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 120px}
+.card{background:#111;border:1px solid #222;border-radius:18px;padding:16px;position:relative;overflow:hidden}
+.card.popular{border:1px solid #00e5ff;background:linear-gradient(180deg,#0a2a33,#111)}
+.card .tag{position:absolute;top:0;right:0;background:#00e5ff;color:#000;font-size:11px;font-weight:800;padding:5px 10px;border-bottom-left-radius:12px}
+.card h3{font-size:22px;margin:8px 0 2px}
+.card .valid{color:#aaa;font-size:12px}
+.card .price{font-size:24px;font-weight:900;margin:12px 0 4px}
+.card .per{color:#888;font-size:12px}
+.card button{width:100%;background:#fff;color:#000;border:none;padding:11px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:10px}
+.card.popular button{background:#00e5ff}
+.card small{color:#777;font-size:11px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#0a0a0a;border-top:1px solid #222;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.bottom b{font-size:14px}
+.bottom span{color:#00e5ff}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.sheet{background:#151515;width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:20px;max-height:92vh;overflow:auto}
+.sheet h2{font-size:22px}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed #333;font-size:14px}
+.paybox{background:#00e5ff;color:#000;border-radius:14px;padding:14px;margin:14px 0;text-align:center}
+.paybox h3{font-size:28px;letter-spacing:2px}
+.paybox p{font-size:13px;font-weight:700}
+input[type=text],input[type=password]{width:100%;background:#000;border:1px solid #333;color:#fff;padding:13px;border-radius:12px;margin:8px 0;outline:none;font-size:15px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:900;font-size:16px;cursor:pointer}
+.btn-blue{background:#00e5ff}
+.btn-white{background:#fff}
+.btn-dark{background:#222;color:#fff;margin-top:8px}
+.btn-red{background:#ff3b30;color:#fff;margin-top:8px}
+.success{text-align:center;padding:20px 0}
+.success .check{width:70px;height:70px;background:#00e5ff;color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 12px}
+.admin-item{background:#000;border:1px solid #333;border-radius:12px;padding:12px;margin:8px 0;font-size:13px;line-height:1.6}
+.admin-item b{color:#00e5ff}
+.stat-box{display:flex;gap:8px;margin:12px 0}
+.stat-box div{flex:1;background:#000;border:1px solid #333;border-radius:12px;padding:10px;text-align:center}
+.stat-box b{font-size:18px;color:#00e5ff;display:block}
+.stat-box span{font-size:11px;color:#aaa}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">SAF <span>LINK</span></div>
+  <div style="display:flex;gap:8px;align-items:center"><div class="badge">● ONLINE</div><button class="admin-btn" onclick="openAdmin()">👁 Admin</button></div>
+</div>
+
+<div class="hero">
+  <h1>Fast Data.<br><span>Anytime. Anywhere.</span></h1>
+  <p>Buy bundles from 20GB to 3000GB • Long Validity • Instant delivery via M-Pesa</p>
+</div>
+
+<div class="search"><span style="margin-right:8px">🔍</span><input id="searchInput" placeholder="Search bundle e.g 200GB..." oninput="render()"></div>
+
+<div class="tabs">
+  <button class="active" onclick="setFilter('all',this)">All Bundles</button>
+  <button onclick="setFilter('daily',this)">Daily</button>
+  <button onclick="setFilter('weekly',this)">Weekly</button>
+  <button onclick="setFilter('monthly',this)">Monthly</button>
+  <button onclick="setFilter('unlimited',this)">Jumbo</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="bottom">
+  <div><b>Need Help?</b><br><span style="color:#aaa;font-size:12px">WhatsApp: 0143158775</span></div>
+  <div style="text-align:right"><b id="orderCount">0 Orders</b><br><span style="font-size:12px;color:#aaa">My Orders ↓</span></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal" id="checkoutModal">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between"><h2>Checkout</h2><span onclick="closeModal()" style="cursor:pointer;font-size:22px">✕</span></div>
+    <div id="checkoutDetails"></div>
+    <div class="paybox">
+      <p>STEP 1: SEND MONEY VIA M-PESA</p>
+      <p style="font-size:12px;margin:4px 0">Send to Number:</p>
+      <h3>0143158775</h3>
+      <p>SAF LINK DATA HUB</p>
+      <button class="btn btn-white" style="margin-top:10px;padding:10px" onclick="copyNumber()">📋 COPY NUMBER</button>
+    </div>
+    <p style="font-size:13px;color:#aaa">STEP 2: Enter your M-Pesa code & phone number to confirm:</p>
+    <input type="text" id="phoneInput" placeholder="Your Phone e.g 0712345678">
+    <input type="text" id="codeInput" placeholder="M-Pesa Code e.g QK123ABC45">
+    <button class="btn btn-blue" onclick="confirmPayment()">I HAVE SENT THE MONEY →</button>
+    <button class="btn btn-dark" onclick="closeModal()">Cancel</button>
+    <p style="font-size:11px;color:#777;text-align:center;margin-top:10px">Your bundle will be activated within 2-5 minutes after verification.</p>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal" id="successModal">
+  <div class="sheet">
+    <div class="success">
+      <div class="check">✓</div>
+      <h2>Order Received!</h2>
+      <p id="successText" style="color:#aaa;margin-top:8px"></p>
+      <div style="background:#000;border:1px solid #333;padding:14px;border-radius:12px;margin:14px 0;text-align:left;font-size:14px" id="successDetails"></div>
+      <button class="btn btn-blue" onclick="closeSuccess()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal" id="adminLoginModal">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between"><h2>Admin Login</h2><span onclick="closeAdminLogin()" style="cursor:pointer;font-size:22px">✕</span></div>
+    <p style="color:#aaa;font-size:13px;margin:8px 0">Enter admin PIN to see clicks & orders. Default PIN: <b style="color:#fff">1234</b></p>
+    <input type="password" id="adminPin" placeholder="Enter PIN">
+    <button class="btn btn-blue" onclick="checkAdmin()">View Dashboard →</button>
+    <button class="btn btn-dark" onclick="closeAdminLogin()">Cancel</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD MODAL -->
+<div class="modal" id="adminModal">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between"><h2>📊 Admin Dashboard</h2><span onclick="closeAdmin()" style="cursor:pointer;font-size:22px">✕</span></div>
+    <div class="stat-box">
+      <div><b id="statClicks">0</b><span>Clicks</span></div>
+      <div><b id="statOrders">0</b><span>Orders Paid</span></div>
+      <div><b id="statMoney">0</b><span>KSh Total</span></div>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn btn-blue" style="padding:10px;font-size:13px" onclick="showTab('clicks')">👆 Clicks</button><button class="btn btn-white" style="padding:10px;font-size:13px" onclick="showTab('orders')">💰 Orders</button></div>
+    <div id="adminList" style="margin-top:12px"></div>
+    <button class="btn btn-dark" onclick="exportData()">📥 Copy All Data</button>
+    <button class="btn btn-red" onclick="clearData()">🗑 Clear All Data</button>
+    <button class="btn btn-dark" onclick="closeAdmin()">Close</button>
+  </div>
+</div>
+
+<script>
+const bundles=[
+ {gb:20,price:99,valid:"5 Days",cat:"daily",speed:"Fast 4G"},
+ {gb:40,price:180,valid:"7 Days",cat:"daily",speed:"Fast 4G"},
+ {gb:60,price:250,valid:"10 Days",cat:"daily",speed:"Fast 4G"},
+ {gb:100,price:399,valid:"15 Days",cat:"weekly",speed:"Fast 4G"},
+ {gb:150,price:599,valid:"20 Days",cat:"weekly",speed:"Fast 5G"},
+ {gb:200,price:699,valid:"45 Days",cat:"monthly",speed:"Fast 5G",popular:true},
+ {gb:300,price:999,valid:"45 Days",cat:"monthly",speed:"Fast 5G",popular:true},
+ {gb:400,price:1299,valid:"60 Days",cat:"monthly",speed:"Fast 5G"},
+ {gb:600,price:1899,valid:"60 Days",cat:"monthly",speed:"Ultra 5G"},
+ {gb:1000,price:2799,valid:"90 Days",cat:"unlimited",speed:"Ultra 5G"},
+ {gb:1500,price:3999,valid:"90 Days",cat:"unlimited",speed:"Ultra 5G"},
+ {gb:2000,price:4999,valid:"90 Days",cat:"unlimited",speed:"Ultra 5G",popular:true},
+ {gb:3000,price:6999,valid:"120 Days",cat:"unlimited",speed:"Ultra 5G"},
+];
+let filter='all';
+let selected=null;
+let adminTab='clicks';
+let orders=JSON.parse(localStorage.getItem('saflink_orders')||'[]');
+let clicks=JSON.parse(localStorage.getItem('saflink_clicks')||'[]');
+updateCount();
+
+function setFilter(f,btn){filter=f;document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
+
+function render(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  bundles.filter(b=>{
+    if(filter!=='all' && b.cat!==filter) return false;
+    if(q && !(`${b.gb}gb`.includes(q) || String(b.price).includes(q))) return false;
+    return true;
+  }).forEach(b=>{
+    grid.innerHTML+=`
+    <div class="card ${b.popular?'popular':''}">
+      ${b.popular?'<div class="tag">MOST POPULAR</div>':''}
+      <div style="font-size:12px;color:#00e5ff">● ${b.speed}</div>
+      <h3>${b.gb} GB</h3>
+      <div class="valid">Valid: ${b.valid} • No Expiry Rollover</div>
+      <div class="price">KSh ${b.price.toLocaleString()}</div>
+      <div class="per">KSh ${(b.price/b.gb).toFixed(1)} per GB</div>
+      <button onclick="openCheckout(${b.gb})">Buy Now →</button>
+      <div style="text-align:center;margin-top:6px"><small>⚡ Instant Activation</small></div>
+    </div>`;
+  });
+}
+function openCheckout(gb){
+  selected=bundles.find(b=>b.gb===gb);
+  // SAVE CLICK - THIS IS THE NEW TRACKING
+  const click={id:'CLICK'+Math.floor(100000+Math.random()*900000),gb:selected.gb,price:selected.price,valid:selected.valid,date:new Date().toLocaleString()};
+  clicks.push(click);
+  localStorage.setItem('saflink_clicks',JSON.stringify(clicks));
+  document.getElementById('checkoutDetails').innerHTML=`
+    <div class="row"><span>Bundle</span><b>${selected.gb}GB Data</b></div>
+    <div class="row"><span>Validity</span><b>${selected.valid}</b></div>
+    <div class="row"><span>Speed</span><b>${selected.speed}</b></div>
+    <div class="row"><span>Total to Pay</span><b style="color:#00e5ff">KSh ${selected.price}</b></div>
+  `;
+  document.getElementById('checkoutModal').classList.add('open');
+}
+function closeModal(){document.getElementById('checkoutModal').classList.remove('open');}
+function copyNumber(){navigator.clipboard.writeText('0143158775');alert('Number 0143158775 copied! Paste it in M-Pesa.');}
+function confirmPayment(){
+  const phone=document.getElementById('phoneInput').value.trim();
+  const code=document.getElementById('codeInput').value.trim().toUpperCase();
+  if(phone.length<10){alert('Please enter your phone number');return;}
+  if(code.length<5){alert('Please enter your M-Pesa code from the SMS');return;}
+  const order={id:'SL'+Math.floor(100000+Math.random()*900000),gb:selected.gb,price:selected.price,phone,code,date:new Date().toLocaleString(),status:'Pending Verification'};
+  orders.push(order);localStorage.setItem('saflink_orders',JSON.stringify(orders));updateCount();
+  closeModal();
+  document.getElementById('successText').innerHTML=`We received your payment request for <b>${selected.gb}GB</b>. We are verifying code <b>${code}</b>.`;
+  document.getElementById('successDetails').innerHTML=`Order ID: <b>${order.id}</b><br>Bundle: ${selected.gb}GB - KSh ${selected.price}<br>Validity: ${selected.valid}<br>Phone: ${phone}<br>Status: <span style="color:#FFC107">Pending Verification (2-5 mins)</span><br><br>You will receive an SMS once activated.`;
+  document.getElementById('successModal').classList.add('open');
+  document.getElementById('phoneInput').value='';document.getElementById('codeInput').value='';
+}
+function closeSuccess(){document.getElementById('successModal').classList.remove('open');}
+function updateCount(){document.getElementById('orderCount').innerText=orders.length+' Orders';}
+
+// ADMIN FUNCTIONS
+function openAdmin(){document.getElementById('adminLoginModal').classList.add('open');}
+function closeAdminLogin(){document.getElementById('adminLoginModal').classList.remove('open');}
+function checkAdmin(){
+  if(document.getElementById('adminPin').value==='1234'){
+    closeAdminLogin(); document.getElementById('adminModal').classList.add('open'); renderAdmin();
+  } else { alert('Wrong PIN. Try 1234'); }
+}
+function closeAdmin(){document.getElementById('adminModal').classList.remove('open');}
+function showTab(t){adminTab=t; renderAdmin();}
+function renderAdmin(){
+  clicks=JSON.parse(localStorage.getItem('saflink_clicks')||'[]');
+  orders=JSON.parse(localStorage.getItem('saflink_orders')||'[]');
+  document.getElementById('statClicks').innerText=clicks.length;
+  document.getElementById('statOrders').innerText=orders.length;
+  document.getElementById('statMoney').innerText='KSh '+orders.reduce((s,o)=>s+o.price,0).toLocaleString();
+  const list=document.getElementById('adminList');
+  if(adminTab==='clicks'){
+    if(clicks.length===0) list.innerHTML='<p style="color:#aaa;text-align:center;padding:20px">No clicks yet. Share your link to get clicks.</p>';
+    else list.innerHTML='<h3 style="font-size:15px;margin-bottom:6px">👆 People Who Clicked Offer</h3>'+clicks.slice().reverse().map(c=>`<div class="admin-item"><b>${c.gb}GB - KSh ${c.price}</b><br>Valid: ${c.valid}<br>Time: ${c.date}<br>ID: ${c.id}</div>`).join('');
+  } else {
+    if(orders.length===0) list.innerHTML='<p style="color:#aaa;text-align:center;padding:20px">No orders yet.</p>';
+    else list.innerHTML='<h3 style="font-size:15px;margin-bottom:6px">💰 People Who Paid / Entered Code</h3>'+orders.slice().reverse().map(o=>`<div class="admin-item"><b>${o.gb}GB - KSh ${o.price}</b><br>Phone: <b>${o.phone}</b><br>M-Pesa Code: <b>${o.code}</b><br>Time: ${o.date}<br>Order: ${o.id} | ${o.status}</div>`).join('');
+  }
+}
+function exportData(){
+  const data='CLICKS:\n'+JSON.stringify(clicks,null,2)+'\n\nORDERS:\n'+JSON.stringify(orders,null,2);
+  navigator.clipboard.writeText(data); alert('All clicks + orders copied! Paste in WhatsApp / Notes to save.');
+}
+function clearData(){
+  if(confirm('Delete all clicks and orders?')){
+    localStorage.removeItem('saflink_clicks'); localStorage.removeItem('saflink_orders');
+    clicks=[]; orders=[]; updateCount(); renderAdmin();
+  }
+}
+render();
+</script>
+</body>
+    </html>
